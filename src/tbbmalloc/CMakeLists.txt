@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_library(tbbmalloc 
+set(CMA_DIR ${CMAKE_SOURCE_DIR}/src/cma)
+file(GLOB CMA_FILES ${CMA_DIR}/*.cpp)
+
+add_library(tbbmalloc
+    ${CMA_FILES}
     backend.cpp
     backref.cpp
     frontend.cpp
@@ -37,6 +41,8 @@ if (NOT ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "(armv7-a|aarch64|mips|arm64)" OR
          TBB_SANITIZE MATCHES "thread"))
     target_compile_definitions(tbbmalloc PRIVATE __TBB_USE_ITT_NOTIFY)
 endif()
+
+include_directories(${CMA_DIR})
 
 target_include_directories(tbbmalloc
     PUBLIC

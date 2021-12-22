@@ -448,7 +448,6 @@ private:
         bool hpAvailable  = false;
         bool thpAvailable = false;
         long long hugePageSize = -1;
-
 #if __unix__
         // Check huge pages existence
         long long meminfoHugePagesTotal = 0;
@@ -488,11 +487,20 @@ private:
             MALLOC_ASSERT(hugePageSize != 0, "Huge Page size can't be zero if we found thp existence.");
             thpAvailable = true;
         }
+        hugePageSize *= 1024;  // was read in KB from meminfo
+#elif _WIN32
+        LUID luid;
+        hpAvailable = LookupPrivilegeValueW(nullptr, L"SeLockMemoryPrivilege", &luid);
+        if (hpAvailable)
+            hugePageSize = GetLargePageMinimum();
+        else
+            hugePageSize = 0;
+        
 #endif
         MALLOC_ASSERT(!pageSize, "Huge page size can't be set twice. Double initialization.");
 
         // Initialize object variables
-        pageSize       = hugePageSize * 1024; // was read in KB from meminfo
+        pageSize       = hugePageSize;
         isHPAvailable  = hpAvailable;
         isTHPAvailable = thpAvailable;
     }
