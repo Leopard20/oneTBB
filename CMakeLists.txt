@@ -96,7 +96,7 @@ endif()
 option(TBB_USE_AVX "Enable AVX" ON)
 option(TBB_USE_AVX2 "Enable AVX2" ON)
 #Just assume all CPUs today support SSE
-add_definitions(-D__SSE__)
+add_definitions(-D__SSE__ -DUSE_SSE)
 
 CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
 if (COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
@@ -108,13 +108,21 @@ else()
         if(COMPILER_OPT_ARCH_AVX2_SUPPORTED AND TBB_USE_AVX2)
             message("Enabling AVX2")
             add_definitions(-D__AVX__ -D__AVX2__)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
+            add_compile_options("/arch:AVX2")
         elseif(TBB_USE_AVX)
             message("Enabling AVX")
             add_definitions(-D__AVX__)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX")
+            add_compile_options("/arch:AVX")
         endif()
     endif()
+endif()
+
+if(MSVC)
+    add_compile_options(
+        $<$<CONFIG:>:/MT> #---------|
+        $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+        $<$<CONFIG:Release>:/MT> #--|
+    )
 endif()
 
 option(TBB_TEST "Enable testing" ON)
