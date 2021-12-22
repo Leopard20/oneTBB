@@ -94,7 +94,7 @@ else()
 endif()
 
 option(TBB_USE_AVX "Enable AVX" ON)
-option(TBB_USE_AVX2 "Enable AVX" ON)
+option(TBB_USE_AVX2 "Enable AVX2" ON)
 #Just assume all CPUs today support SSE
 add_definitions(-D__SSE__)
 
